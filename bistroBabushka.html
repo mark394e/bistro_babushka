@@ -24,15 +24,63 @@
       article {
         border: 2px solid red;
         padding: 10px;
+        cursor: pointer;
       }
 
       .valgt {
         background-color: red;
         color: white;
       }
+
+      button:hover {
+        background-color: red;
+        color: white;
+      }
+      button {
+        border-radius: 8px;
+        transition-duration: 0.4s;
+      }
+
+      #popup {
+        display: none;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.8);
+        overflow: scroll;
+      }
+
+      #popup article {
+        width: 80vw;
+        display: flex;
+        margin: 4rem auto;
+        border-radius: 25px;
+        padding: 12px;
+        background-color: white;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #luk {
+        font-size: 1.7em;
+        font-weight: bolder;
+        color: black;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <section id="popup">
+      <article>
+        <img src="" alt="" class="billede" />
+        <h2 class="navn"></h2>
+        <p class="tekst"></p>
+        <p class="pris"></p>
+        <button id="luk">Luk</button>
+      </article>
+    </section>
     <h1>Alle</h1>
     <nav>
       <button data-kategori="alle" class="valgt">Alle</button>
@@ -40,6 +88,7 @@
       <button data-kategori="hovedretter">Hovedret</button>
       <button data-kategori="desserter">Dessert</button>
     </nav>
+
     <main>
       <template>
         <article>
@@ -94,6 +143,9 @@
 
       const main = document.querySelector("main");
       const template = document.querySelector("template").content;
+      const popup = document.querySelector("#popup");
+      const article = document.querySelector("article");
+      const lukKnap = document.querySelector("#luk");
 
       // loop'er gennem alle retter i json-arrayet
       function visRetter() {
@@ -112,10 +164,29 @@
               russiskRet.kortbeskrivelse;
             klon.querySelector(".pris").textContent =
               "Pris: " + russiskRet.pris + ",-";
+            klon
+              .querySelector("article")
+              .addEventListener("click", () => visDetaljer(russiskRet));
             main.appendChild(klon);
           }
         });
       }
+
+      // tilføjer tekst og billede til popup-vindue
+      function visDetaljer(russiskRet) {
+        console.log(russiskRet);
+        article.style.cursor = "default";
+        popup.style.display = "block";
+        popup.querySelector(".billede").src =
+          "medium/" + russiskRet.billednavn + "-md.jpg";
+        popup.querySelector(".navn").textContent = russiskRet.navn;
+        popup.querySelector(".tekst").textContent = russiskRet.langbeskrivelse;
+        popup.querySelector(".pris").textContent =
+          "Pris: " + russiskRet.pris + ",-";
+      }
+
+      // ved klik på luk-knappen forsvinder popup-vindue
+      lukKnap.addEventListener("click", () => (popup.style.display = "none"));
 
       hentData();
     </script>
