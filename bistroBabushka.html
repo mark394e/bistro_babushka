@@ -100,7 +100,7 @@
       </template>
     </main>
     <script>
-      // henter json-array fra restdb i stedet for lokal .json-fil
+      // definere stien til json-array fra restdb i stedet for lokal .json-fil
       const url = "https://babushka-dd8a.restdb.io/rest/menu";
       const key = "600ec2fb1346a1524ff12de4";
       const options = {
@@ -108,19 +108,25 @@
           "x-apikey": key,
         },
       };
+
+      // definere globale variable
+      const main = document.querySelector("main");
+      const template = document.querySelector("template").content;
+      const popup = document.querySelector("#popup");
+      const article = document.querySelector("article");
+      const lukKnap = document.querySelector("#luk");
       const header = document.querySelector("h1");
 
-      let retter; // definere en global variable
-
+      let retter;
       let filter = "alle";
 
-      // sætter eventlistener på alle knapper i nav'en
+      // sætter eventlistener på alle knapper i nav'en og lytter efter klik på knapperne
       const filterKnapper = document.querySelectorAll("nav button");
       filterKnapper.forEach((knap) =>
         knap.addEventListener("click", filtrerRetter)
       );
 
-      //   sætter filter til at være ligmed den data-attribut vi har defineret i HTML; forretter, hovedretter eller desserter.
+      // sætter filter til at være ligmed den data-attribut vi har defineret i HTML; forretter, hovedretter eller desserter.
       function filtrerRetter() {
         filter = this.dataset.kategori;
 
@@ -141,19 +147,13 @@
         visRetter();
       }
 
-      const main = document.querySelector("main");
-      const template = document.querySelector("template").content;
-      const popup = document.querySelector("#popup");
-      const article = document.querySelector("article");
-      const lukKnap = document.querySelector("#luk");
-
       // loop'er gennem alle retter i json-arrayet
       function visRetter() {
         console.log("visRetter");
 
         main.textContent = ""; // Her resetter jeg DOM'en ved at tilføje en tom string
 
-        // for hver ret i arrayet, skal der tjekkes om de opfylder filter-kravet (forretter, hovedretter eller desserter) og derefter vises i DOM'en
+        // for hver ret i arrayet, skal der tjekkes om de opfylder filter-kravet (forretter, hovedretter eller desserter) og derefter vises i DOM'en.
         retter.forEach((russiskRet) => {
           if (filter == russiskRet.kategori || filter == "alle") {
             const klon = template.cloneNode(true);
@@ -164,15 +164,18 @@
               russiskRet.kortbeskrivelse;
             klon.querySelector(".pris").textContent =
               "Pris: " + russiskRet.pris + ",-";
+            // tilføjer eventlistner til hvert article-element og lytter efter klik på artiklerne
             klon
               .querySelector("article")
               .addEventListener("click", () => visDetaljer(russiskRet));
+
+            // tilføjer klon-template-elementet til main-elementet (så det hele vises i DOM'en)
             main.appendChild(klon);
           }
         });
       }
 
-      // tilføjer tekst og billede til popup-vindue
+      // tilføjer tekst og billede, fra den valgte ret, til popup-vindue. Samt sætter cursor til default, så man ikke tror man kan klikke på elementet igen.
       function visDetaljer(russiskRet) {
         console.log(russiskRet);
         article.style.cursor = "default";
