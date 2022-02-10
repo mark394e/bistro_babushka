@@ -20,14 +20,20 @@
         max-width: 1200px;
         margin: 0 auto;
       }
-      nav {
+      .nav {
+        position: sticky;
+        top: 0;
+        padding: 1rem 1rem;
+        background-color: #fffbf1;
         display: flex;
         justify-content: center;
         gap: 10px;
-        margin: 40px 0px 0px 0px;
+        margin: 20px 0px 0px 0px;
       }
+
       img {
         max-width: 100%;
+        border-radius: 8px;
       }
       main {
         display: grid;
@@ -53,7 +59,7 @@
         height: 40vh;
         background-image: url(splash/COLOURBOX12201500.png);
         background-size: cover;
-        background-position: 19% 20%;
+        background-position: 19% 40%;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: 1fr 1fr;
@@ -133,7 +139,7 @@
         box-shadow: 3px 3px rgba(0, 0, 0, 0.6);
       }
       @media (max-width: 600px) {
-        nav {
+        .nav {
           display: flex;
           justify-content: center;
           gap: 10px;
@@ -158,7 +164,7 @@
     </section>
     <div class="splash"><h1>Alle</h1></div>
 
-    <nav>
+    <nav class="nav">
       <button data-kategori="alle" class="valgt">Alle</button>
       <button data-kategori="forretter">Forret</button>
       <button data-kategori="hovedretter">Hovedret</button>
@@ -202,7 +208,7 @@
         let filter = "alle";
 
         // sætter eventlistener på alle knapper i nav'en og lytter efter klik på knapperne
-        const filterKnapper = document.querySelectorAll("nav button");
+        const filterKnapper = document.querySelectorAll(".nav button");
         filterKnapper.forEach((knap) =>
           knap.addEventListener("click", filtrerRetter)
         );
@@ -259,6 +265,7 @@
         // tilføjer tekst og billede, fra den valgte ret, til popup-vindue. Samt sætter cursor til default, så man ikke tror man kan klikke på elementet igen.
         function visDetaljer(russiskRet) {
           console.log(russiskRet);
+          document.querySelector(".nav").style.position = "inherit";
           article.style.cursor = "default";
           popup.style.display = "block";
           popup.querySelector(".billede").src =
@@ -272,7 +279,10 @@
 
         // ved klik på luk-knappen forsvinder popup-vindue
         lukKnap.addEventListener("click", () => (popup.style.display = "none"));
-
+        lukKnap.addEventListener(
+          "click",
+          () => (document.querySelector(".nav").style.position = "sticky")
+        );
         hentData();
       }
     </script>
