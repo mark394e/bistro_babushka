@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0rem;
+        box-sizing: border-box;
+      }
+      h1 {
+        display: flex;
+        justify-content: center;
+        color: darkred;
+      }
+      body {
+        background-color: #fffbf1;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
       nav {
         display: flex;
         justify-content: center;
@@ -18,27 +36,48 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         grid-row: 1fr;
-        gap: 10px;
+        gap: 30px;
         padding-top: 20px;
       }
       article {
-        border: 2px solid red;
+        border: 2px solid darkred;
         padding: 10px;
         cursor: pointer;
+        border-radius: 8px;
+        transition-duration: 0.4s;
+      }
+
+      article:hover {
+        box-shadow: 4px 4px rgba(0, 0, 0, 0.6);
+      }
+
+      .splash {
+        width: 100%;
+        height: 40vh;
+        background-image: url(splash/COLOURBOX12201500.JPG);
+        background-size: cover;
+        background-position: 19% 20%;
       }
 
       .valgt {
-        background-color: red;
+        background-color: darkred;
         color: white;
       }
 
       button:hover {
-        background-color: red;
+        background-color: darkred;
         color: white;
+        box-shadow: 3px 3px rgba(0, 0, 0, 0.6);
       }
       button {
         border-radius: 8px;
         transition-duration: 0.4s;
+        padding: 10px 24px;
+        border: solid 1.5px darkred;
+        font-size: 1rem;
+        background-color: #fffbf1;
+        color: darkred;
+        font-weight: 500;
       }
 
       #popup {
@@ -69,6 +108,19 @@
         color: black;
         cursor: pointer;
       }
+
+      @media (max-width: 600px) {
+        nav {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          flex-flow: column;
+          margin: 10px 50px 10px 50px;
+        }
+        main {
+          margin: 10px 50px 10px 50px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -81,6 +133,7 @@
         <button id="luk">Luk</button>
       </article>
     </section>
+    <div class="splash"></div>
     <h1>Alle</h1>
     <nav>
       <button data-kategori="alle" class="valgt">Alle</button>
@@ -100,98 +153,105 @@
       </template>
     </main>
     <script>
-      // definere stien til json-array fra restdb i stedet for lokal .json-fil
-      const url = "https://babushka-dd8a.restdb.io/rest/menu";
-      const key = "600ec2fb1346a1524ff12de4";
-      const options = {
-        headers: {
-          "x-apikey": key,
-        },
-      };
+      // Tjekker om DOM'en er loaded før siden vises
+      window.addEventListener("DOMContentLoaded", domLoaded);
+      function domLoaded() {
+        console.log("domLoaded");
 
-      // definere globale variable
-      const main = document.querySelector("main");
-      const template = document.querySelector("template").content;
-      const popup = document.querySelector("#popup");
-      const article = document.querySelector("article");
-      const lukKnap = document.querySelector("#luk");
-      const header = document.querySelector("h1");
+        // definere stien til json-array fra restdb i stedet for lokal .json-fil
+        const url = "https://babushka-dd8a.restdb.io/rest/menu";
+        const key = "600ec2fb1346a1524ff12de4";
+        const options = {
+          headers: {
+            "x-apikey": key,
+          },
+        };
 
-      let retter;
-      let filter = "alle";
+        // definere globale variable
+        const main = document.querySelector("main");
+        const template = document.querySelector("template").content;
+        const popup = document.querySelector("#popup");
+        const article = document.querySelector("article");
+        const lukKnap = document.querySelector("#luk");
+        const header = document.querySelector("h1");
 
-      // sætter eventlistener på alle knapper i nav'en og lytter efter klik på knapperne
-      const filterKnapper = document.querySelectorAll("nav button");
-      filterKnapper.forEach((knap) =>
-        knap.addEventListener("click", filtrerRetter)
-      );
+        let retter;
+        let filter = "alle";
 
-      // sætter filter til at være ligmed den data-attribut vi har defineret i HTML; forretter, hovedretter eller desserter.
-      function filtrerRetter() {
-        filter = this.dataset.kategori;
+        // sætter eventlistener på alle knapper i nav'en og lytter efter klik på knapperne
+        const filterKnapper = document.querySelectorAll("nav button");
+        filterKnapper.forEach((knap) =>
+          knap.addEventListener("click", filtrerRetter)
+        );
 
-        // fjerner klassen .valgt og lægger den til den knap der er trykket på
-        document.querySelector(".valgt").classList.remove("valgt");
-        this.classList.add("valgt");
-        visRetter();
+        // sætter filter til at være ligmed den data-attribut vi har defineret i HTML; forretter, hovedretter eller desserter.
+        function filtrerRetter() {
+          filter = this.dataset.kategori;
 
-        // jeg sætter h1'erens tekstindhold ligmed tekstindholdet af den knap der er trykket på
-        header.textContent = this.textContent;
+          // fjerner klassen .valgt og lægger den til den knap der er trykket på
+          document.querySelector(".valgt").classList.remove("valgt");
+          this.classList.add("valgt");
+          visRetter();
+
+          // jeg sætter h1'erens tekstindhold ligmed tekstindholdet af den knap der er trykket på
+          header.textContent = this.textContent;
+        }
+
+        // Henter json-data fra restdb via fetch()
+        async function hentData() {
+          const respons = await fetch(url, options);
+          retter = await respons.json();
+          console.log("Retter", retter);
+          visRetter();
+        }
+
+        // loop'er gennem alle retter i json-arrayet
+        function visRetter() {
+          console.log("visRetter");
+
+          main.textContent = ""; // Her resetter jeg DOM'en ved at tilføje en tom string
+
+          // for hver ret i arrayet, skal der tjekkes om de opfylder filter-kravet (forretter, hovedretter eller desserter) og derefter vises i DOM'en.
+          retter.forEach((russiskRet) => {
+            if (filter == russiskRet.kategori || filter == "alle") {
+              const klon = template.cloneNode(true);
+              klon.querySelector(".billede").src =
+                "medium/" + russiskRet.billednavn + "-md.jpg";
+              klon.querySelector(".navn").textContent = russiskRet.navn;
+              klon.querySelector(".tekst").textContent =
+                russiskRet.kortbeskrivelse;
+              klon.querySelector(".pris").textContent =
+                "Pris: " + russiskRet.pris + ",-";
+              // tilføjer eventlistner til hvert article-element og lytter efter klik på artiklerne
+              klon
+                .querySelector("article")
+                .addEventListener("click", () => visDetaljer(russiskRet));
+
+              // tilføjer klon-template-elementet til main-elementet (så det hele vises i DOM'en)
+              main.appendChild(klon);
+            }
+          });
+        }
+
+        // tilføjer tekst og billede, fra den valgte ret, til popup-vindue. Samt sætter cursor til default, så man ikke tror man kan klikke på elementet igen.
+        function visDetaljer(russiskRet) {
+          console.log(russiskRet);
+          article.style.cursor = "default";
+          popup.style.display = "block";
+          popup.querySelector(".billede").src =
+            "medium/" + russiskRet.billednavn + "-md.jpg";
+          popup.querySelector(".navn").textContent = russiskRet.navn;
+          popup.querySelector(".tekst").textContent =
+            russiskRet.langbeskrivelse;
+          popup.querySelector(".pris").textContent =
+            "Pris: " + russiskRet.pris + ",-";
+        }
+
+        // ved klik på luk-knappen forsvinder popup-vindue
+        lukKnap.addEventListener("click", () => (popup.style.display = "none"));
+
+        hentData();
       }
-
-      // Henter json-data fra restdb via fetch()
-      async function hentData() {
-        const respons = await fetch(url, options);
-        retter = await respons.json();
-        console.log("Retter", retter);
-        visRetter();
-      }
-
-      // loop'er gennem alle retter i json-arrayet
-      function visRetter() {
-        console.log("visRetter");
-
-        main.textContent = ""; // Her resetter jeg DOM'en ved at tilføje en tom string
-
-        // for hver ret i arrayet, skal der tjekkes om de opfylder filter-kravet (forretter, hovedretter eller desserter) og derefter vises i DOM'en.
-        retter.forEach((russiskRet) => {
-          if (filter == russiskRet.kategori || filter == "alle") {
-            const klon = template.cloneNode(true);
-            klon.querySelector(".billede").src =
-              "medium/" + russiskRet.billednavn + "-md.jpg";
-            klon.querySelector(".navn").textContent = russiskRet.navn;
-            klon.querySelector(".tekst").textContent =
-              russiskRet.kortbeskrivelse;
-            klon.querySelector(".pris").textContent =
-              "Pris: " + russiskRet.pris + ",-";
-            // tilføjer eventlistner til hvert article-element og lytter efter klik på artiklerne
-            klon
-              .querySelector("article")
-              .addEventListener("click", () => visDetaljer(russiskRet));
-
-            // tilføjer klon-template-elementet til main-elementet (så det hele vises i DOM'en)
-            main.appendChild(klon);
-          }
-        });
-      }
-
-      // tilføjer tekst og billede, fra den valgte ret, til popup-vindue. Samt sætter cursor til default, så man ikke tror man kan klikke på elementet igen.
-      function visDetaljer(russiskRet) {
-        console.log(russiskRet);
-        article.style.cursor = "default";
-        popup.style.display = "block";
-        popup.querySelector(".billede").src =
-          "medium/" + russiskRet.billednavn + "-md.jpg";
-        popup.querySelector(".navn").textContent = russiskRet.navn;
-        popup.querySelector(".tekst").textContent = russiskRet.langbeskrivelse;
-        popup.querySelector(".pris").textContent =
-          "Pris: " + russiskRet.pris + ",-";
-      }
-
-      // ved klik på luk-knappen forsvinder popup-vindue
-      lukKnap.addEventListener("click", () => (popup.style.display = "none"));
-
-      hentData();
     </script>
   </body>
 </html>
